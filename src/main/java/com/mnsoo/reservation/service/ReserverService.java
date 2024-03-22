@@ -10,6 +10,7 @@ import com.mnsoo.reservation.repository.StoreRepository;
 import com.mnsoo.reservation.sort.StoreSorter;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -40,6 +41,19 @@ public class ReserverService implements UserDetailsService {
         reserver.setPassword(this.passwordEncoder.encode(reserver.getPassword()));
         var result = this.reserverRepository.save(reserver.toReserverEntity());
         return result;
+    }
+
+    public ReserverEntity editUserInfo(Auth.SignUp reserver){
+        ReserverEntity currentReserver = (ReserverEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        currentReserver.updateInfo(reserver);
+        reserverRepository.save(currentReserver);
+        return currentReserver;
+    }
+
+    public String deleteAccount(){
+        ReserverEntity currentReserver = (ReserverEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        reserverRepository.delete(currentReserver);
+        return "Account deleted successfully";
     }
 
     public ReserverEntity authenticate(Auth.SignIn reserver){

@@ -5,6 +5,7 @@ import com.mnsoo.reservation.security.TokenProvider;
 import com.mnsoo.reservation.service.ReserverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,20 @@ public class ReserveController {
         var token = this.tokenProvider.generateToken(reserver.getUserId(), reserver.getRoles());
 
         return ResponseEntity.ok(token);
+    }
+
+    @PutMapping("/account/edit")
+    @PreAuthorize("hasRole('RESERVER')")
+    public ResponseEntity<?> edit(@RequestBody Auth.SignUp request){
+        var result = this.reserverService.editUserInfo(request);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/account/delete")
+    @PreAuthorize("hasRole('RESERVER')")
+    public ResponseEntity<?> deleteAccount(){
+        var result = this.reserverService.deleteAccount();
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/search/store/{storeName}")

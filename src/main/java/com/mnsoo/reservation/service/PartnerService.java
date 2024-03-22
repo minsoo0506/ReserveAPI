@@ -8,6 +8,7 @@ import com.mnsoo.reservation.exception.impl.AlreadyExistUserException;
 import com.mnsoo.reservation.repository.PartnerRepository;
 import com.mnsoo.reservation.repository.StoreRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,6 +38,19 @@ public class PartnerService implements UserDetailsService {
         partner.setPassword(this.passwordEncoder.encode(partner.getPassword()));
         var result = this.partnerRepository.save(partner.toPartnerEntity());
         return result;
+    }
+
+    public PartnerEntity editUserInfo(Auth.SignUp partner) {
+        PartnerEntity currentPartner = (PartnerEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        currentPartner.updateInfo(partner);
+        partnerRepository.save(currentPartner);
+        return currentPartner;
+    }
+
+    public String deleteAccount() {
+        PartnerEntity currentPartner = (PartnerEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        partnerRepository.delete(currentPartner);
+        return "Account deleted successfully";
     }
 
     public PartnerEntity authenticate(Auth.SignIn partner){

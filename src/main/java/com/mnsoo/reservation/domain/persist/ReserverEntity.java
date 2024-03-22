@@ -1,5 +1,6 @@
 package com.mnsoo.reservation.domain.persist;
 
+import com.mnsoo.reservation.domain.Auth;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,6 +37,24 @@ public class ReserverEntity implements UserDetails {
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
+
+    public void updateInfo(Auth.SignUp updatedInfo) {
+        if (updatedInfo.getName() != null) {
+            this.name = updatedInfo.getName();
+        }
+        if (updatedInfo.getUserId() != null) {
+            this.userId = updatedInfo.getUserId();
+        }
+        if (updatedInfo.getPassword() != null) {
+            this.password = updatedInfo.getPassword();
+        }
+        if (updatedInfo.getPhoneNumber() != null) {
+            this.phoneNumber = updatedInfo.getPhoneNumber();
+        }
+        if (updatedInfo.getRoles() != null && !updatedInfo.getRoles().isEmpty()) {
+            this.roles = updatedInfo.getRoles();
+        }
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
