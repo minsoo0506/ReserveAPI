@@ -3,6 +3,8 @@ package com.mnsoo.reservation.domain.persist;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,6 +22,9 @@ public class Store {
     private String name;
 
     @Column(nullable = false)
+    private String ownerId;
+
+    @Column(nullable = false)
     private String location;
 
     @Column(nullable = false)
@@ -33,4 +38,7 @@ public class Store {
 
     @Column(nullable = false)
     private Double rating;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
 }

@@ -8,15 +8,20 @@ import com.mnsoo.reservation.exception.impl.AlreadyExistUserException;
 import com.mnsoo.reservation.repository.PartnerRepository;
 import com.mnsoo.reservation.repository.StoreRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Iterator;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class PartnerService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
@@ -41,14 +46,19 @@ public class PartnerService implements UserDetailsService {
     }
 
     public PartnerEntity editUserInfo(Auth.SignUp partner) {
-        PartnerEntity currentPartner = (PartnerEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PartnerEntity currentPartner = getCurrentPartner();
+
+        if (partner.getPassword() != null) {
+            partner.setPassword(this.passwordEncoder.encode(partner.getPassword()));
+        }
+
         currentPartner.updateInfo(partner);
         partnerRepository.save(currentPartner);
         return currentPartner;
     }
 
     public String deleteAccount() {
-        PartnerEntity currentPartner = (PartnerEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PartnerEntity currentPartner = getCurrentPartner();
         partnerRepository.delete(currentPartner);
         return "Account deleted successfully";
     }
@@ -64,7 +74,12 @@ public class PartnerService implements UserDetailsService {
         return user;
     }
 
-    public Store enroll(Store store){
+    public Store enrollStore(Store store, Authentication authentication){
+        String currentUserId = authentication.getName();
+        PartnerEntity currentPartner = partnerRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Partner not found"));
+        currentPartner.addStore(store);
+
         boolean exist = this.storeRepository.existsByName(store.getName());
         if(exist){
             throw new AlreadyExistStoreException();
@@ -72,5 +87,37 @@ public class PartnerService implements UserDetailsService {
 
         var result = this.storeRepository.save(store);
         return result;
+    }
+
+    public Store editStore(Store store, Authentication authentication){
+        String currentUserId = authentication.getName();
+        PartnerEntity currentPartner = partnerRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Partner not found"));
+
+        boolean match = currentPartner.editStore(store);
+
+        if(!match){
+            throw new RuntimeException("No Such Store");
+        }
+
+        var result = this.storeRepository.save(store);
+        return result;
+    }
+
+    public boolean deleteStore(String storeName){
+        PartnerEntity currentPartner = getCurrentPartner();
+        for(Iterator<Store> iterator = currentPartner.getStores().iterator(); iterator.hasNext();){
+            Store store = iterator.next();
+            if(store.getName().equals(storeName)){
+                iterator.remove();
+                storeRepository.delete(store);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private PartnerEntity getCurrentPartner() {
+        return (PartnerEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

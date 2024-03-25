@@ -1,10 +1,13 @@
 package com.mnsoo.reservation.service;
 
 import com.mnsoo.reservation.domain.Auth;
+import com.mnsoo.reservation.domain.ReservationRequest;
+import com.mnsoo.reservation.domain.persist.Reservation;
 import com.mnsoo.reservation.domain.persist.ReserverEntity;
 import com.mnsoo.reservation.domain.persist.Store;
 import com.mnsoo.reservation.exception.impl.AlreadyExistUserException;
 import com.mnsoo.reservation.exception.impl.StoreNotFoundException;
+import com.mnsoo.reservation.repository.ReservationRepository;
 import com.mnsoo.reservation.repository.ReserverRepository;
 import com.mnsoo.reservation.repository.StoreRepository;
 import com.mnsoo.reservation.sort.StoreSorter;
@@ -16,14 +19,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class ReserverService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
     private final ReserverRepository reserverRepository;
     private final StoreRepository storeRepository;
+    private final ReservationRepository reservationRepository;
     private final StoreSorter storeSorter;
 
     @Override
@@ -44,14 +53,14 @@ public class ReserverService implements UserDetailsService {
     }
 
     public ReserverEntity editUserInfo(Auth.SignUp reserver){
-        ReserverEntity currentReserver = (ReserverEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ReserverEntity currentReserver = getCurrentReserver();
         currentReserver.updateInfo(reserver);
         reserverRepository.save(currentReserver);
         return currentReserver;
     }
 
     public String deleteAccount(){
-        ReserverEntity currentReserver = (ReserverEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ReserverEntity currentReserver = getCurrentReserver();
         reserverRepository.delete(currentReserver);
         return "Account deleted successfully";
     }
@@ -87,5 +96,33 @@ public class ReserverService implements UserDetailsService {
             default ->
                     throw new IllegalArgumentException("Invalid sort criteria");
         };
+    }
+
+    public Reservation makeReservation(ReservationRequest request) {
+        ReserverEntity currentReserver = getCurrentReserver();
+
+        Store store = this.storeRepository.findByName(request.getStoreName())
+                .orElseThrow(StoreNotFoundException::new);
+
+        LocalDateTime reservationTime = LocalDateTime.of(request.getDate(), request.getTime());
+
+        Optional<Reservation> existingReservation = this.reservationRepository.findByStoreAndReservationTime(store, reservationTime);
+        if (existingReservation.isPresent()) {
+            throw new RuntimeException("There is already a reservation at this time.");
+        }
+
+        Reservation reservation = Reservation.builder()
+                .reserverPhoneNumber(currentReserver.getPhoneNumber())
+                .reservationTime(reservationTime)
+                .store(store)
+                .build();
+
+        Reservation savedReservation = this.reservationRepository.save(reservation);
+
+        return savedReservation;
+    }
+
+    private ReserverEntity getCurrentReserver() {
+        return (ReserverEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

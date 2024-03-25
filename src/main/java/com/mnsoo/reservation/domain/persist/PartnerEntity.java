@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +39,9 @@ public class PartnerEntity implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
 
+    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Store> stores = new ArrayList<>();
+
     public void updateInfo(Auth.SignUp updatedInfo) {
         if (updatedInfo.getName() != null) {
             this.name = updatedInfo.getName();
@@ -54,6 +58,29 @@ public class PartnerEntity implements UserDetails {
         if (updatedInfo.getRoles() != null && !updatedInfo.getRoles().isEmpty()) {
             this.roles = updatedInfo.getRoles();
         }
+    }
+
+    public void addStore(Store store) {
+        this.stores.add(store);
+        store.setOwnerId(this.userId);
+    }
+
+    public boolean editStore(Store updatedStore){
+        boolean matched = false;
+
+        for (Store store : this.stores) {
+            if (store.getId().equals(updatedStore.getId())) {
+                matched = true;
+                if(updatedStore.getName() != null) store.setName(updatedStore.getName());
+                if(updatedStore.getLocation() != null) store.setLocation(updatedStore.getLocation());
+                if(updatedStore.getLatitude() != null) store.setLatitude(updatedStore.getLatitude());
+                if(updatedStore.getLongitude() != null) store.setLongitude(updatedStore.getLongitude());
+                if(updatedStore.getDescription() != null) store.setDescription(updatedStore.getDescription());
+                break;
+            }
+        }
+
+        return matched;
     }
 
     @Override

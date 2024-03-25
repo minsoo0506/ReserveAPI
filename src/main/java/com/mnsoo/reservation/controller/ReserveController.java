@@ -1,6 +1,7 @@
 package com.mnsoo.reservation.controller;
 
 import com.mnsoo.reservation.domain.Auth;
+import com.mnsoo.reservation.domain.ReservationRequest;
 import com.mnsoo.reservation.security.TokenProvider;
 import com.mnsoo.reservation.service.ReserverService;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,7 @@ public class ReserveController {
         return ResponseEntity.ok(result);
     }
 
+    // Need to check
     @GetMapping("/stores/sort/{criteria}")
     public ResponseEntity<?> getStores(
             @PathVariable String criteria,
@@ -60,6 +62,13 @@ public class ReserveController {
             @RequestParam(required = false) Double radius)
     {
         var result = reserverService.sortStores(criteria, page, size, userLat, userLng, radius);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/request")
+    @PreAuthorize("hasRole('RESERVER')")
+    public ResponseEntity<?> makeReservation(@RequestBody ReservationRequest request) {
+        var result = this.reserverService.makeReservation(request);
         return ResponseEntity.ok(result);
     }
 }

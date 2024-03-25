@@ -5,8 +5,10 @@ import com.mnsoo.reservation.domain.persist.Store;
 import com.mnsoo.reservation.security.TokenProvider;
 import com.mnsoo.reservation.service.PartnerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -47,8 +49,22 @@ public class PartnerController {
 
     @PostMapping("/store/register")
     @PreAuthorize("hasRole('PARTNER')")
-    public ResponseEntity<?> registerStore(@RequestBody Store store){
-        var result = this.partnerService.enroll(store);
+    public ResponseEntity<?> registerStore(@RequestBody Store store, Authentication authentication){
+        var result = this.partnerService.enrollStore(store, authentication);
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/store/edit")
+    @PreAuthorize("hasRole('PARTNER')")
+    public ResponseEntity<?> editStore(@RequestBody Store store, Authentication authentication){
+        var result = this.partnerService.editStore(store, authentication);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/store/delete/{storeName}")
+    @PreAuthorize("hasRole('PARTNER')")
+    public ResponseEntity<?> deleteStore(@PathVariable String storeName){
+        var result = this.partnerService.deleteStore(storeName);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
