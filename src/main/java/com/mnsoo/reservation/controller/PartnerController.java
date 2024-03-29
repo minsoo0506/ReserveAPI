@@ -11,6 +11,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @RestController
 @RequestMapping("/partners")
 @RequiredArgsConstructor
@@ -66,5 +69,15 @@ public class PartnerController {
     public ResponseEntity<?> deleteStore(@PathVariable String storeName){
         var result = this.partnerService.deleteStore(storeName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/check")
+    @PreAuthorize("hasRole('PARTNER')")
+    public ResponseEntity<?> checkReservation(
+            @RequestParam String storeName,
+            @RequestParam LocalDate localDate
+    ){
+        var result = this.partnerService.getReservations(storeName, localDate);
+        return ResponseEntity.ok(result);
     }
 }

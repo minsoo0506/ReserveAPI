@@ -113,7 +113,8 @@ public class ReserverService implements UserDetailsService {
 
         Reservation reservation = Reservation.builder()
                 .reserverPhoneNumber(currentReserver.getPhoneNumber())
-                .reservationTime(reservationTime)
+                .reservationDate(request.getDate())
+                .reservationTime(request.getTime())
                 .store(store)
                 .build();
 

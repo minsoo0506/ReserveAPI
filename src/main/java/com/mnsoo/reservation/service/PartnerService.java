@@ -2,10 +2,12 @@ package com.mnsoo.reservation.service;
 
 import com.mnsoo.reservation.domain.Auth;
 import com.mnsoo.reservation.domain.persist.PartnerEntity;
+import com.mnsoo.reservation.domain.persist.Reservation;
 import com.mnsoo.reservation.domain.persist.Store;
 import com.mnsoo.reservation.exception.impl.AlreadyExistStoreException;
 import com.mnsoo.reservation.exception.impl.AlreadyExistUserException;
 import com.mnsoo.reservation.repository.PartnerRepository;
+import com.mnsoo.reservation.repository.ReservationRepository;
 import com.mnsoo.reservation.repository.StoreRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -17,7 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Iterator;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +31,7 @@ public class PartnerService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final PartnerRepository partnerRepository;
     private final StoreRepository storeRepository;
+    private final ReservationRepository reservationRepository;
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
@@ -115,6 +120,10 @@ public class PartnerService implements UserDetailsService {
             }
         }
         return false;
+    }
+
+    public List<Reservation> getReservations(String storeName, LocalDate date){
+        return reservationRepository.findByStoreNameAndReservationDateOrderByReservationTimeAsc(storeName, date);
     }
 
     private PartnerEntity getCurrentPartner() {

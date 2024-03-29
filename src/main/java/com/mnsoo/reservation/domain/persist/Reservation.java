@@ -3,7 +3,8 @@ package com.mnsoo.reservation.domain.persist;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -21,7 +22,10 @@ public class Reservation {
     private String reserverPhoneNumber;
 
     @Column(nullable = false)
-    private LocalDateTime reservationTime;
+    private LocalDate reservationDate;
+
+    @Column(nullable = false)
+    private LocalTime reservationTime;
 
     @ManyToOne
     @JoinColumn(name = "store_id", referencedColumnName = "id")
