@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/partners")
@@ -59,19 +58,23 @@ public class PartnerController {
 
     @PutMapping("/store/edit")
     @PreAuthorize("hasRole('PARTNER')")
-    public ResponseEntity<?> editStore(@RequestBody Store store, Authentication authentication){
-        var result = this.partnerService.editStore(store, authentication);
+    public ResponseEntity<?> editStore(@RequestBody Store store){
+        var result = this.partnerService.editStore(store);
         return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/store/delete/{storeName}")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> deleteStore(@PathVariable String storeName){
-        var result = this.partnerService.deleteStore(storeName);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        boolean deleteSuccess = this.partnerService.deleteStore(storeName);
+        if(deleteSuccess) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @GetMapping("/check")
+    @GetMapping("/reserve/check")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> checkReservation(
             @RequestParam String storeName,

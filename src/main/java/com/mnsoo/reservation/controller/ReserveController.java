@@ -52,7 +52,7 @@ public class ReserveController {
     }
 
     // Need to check
-    @GetMapping("/stores/sort/{criteria}")
+    @GetMapping("/search/stores/{criteria}")
     public ResponseEntity<?> getStores(
             @PathVariable String criteria,
             @RequestParam(defaultValue = "0") int page,

@@ -1,5 +1,6 @@
 package com.mnsoo.reservation.domain.persist;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,8 +22,10 @@ public class Store {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String ownerId;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "partner_id")
+    private PartnerEntity partner;
 
     @Column(nullable = false)
     private String location;

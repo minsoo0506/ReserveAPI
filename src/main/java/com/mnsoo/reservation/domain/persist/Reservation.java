@@ -1,5 +1,6 @@
 package com.mnsoo.reservation.domain.persist;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,6 +28,7 @@ public class Reservation {
     @Column(nullable = false)
     private LocalTime reservationTime;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "store_id", referencedColumnName = "id")
     private Store store;

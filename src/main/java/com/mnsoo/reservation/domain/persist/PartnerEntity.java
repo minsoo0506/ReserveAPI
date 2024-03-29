@@ -1,5 +1,6 @@
 package com.mnsoo.reservation.domain.persist;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mnsoo.reservation.domain.Auth;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,6 +40,7 @@ public class PartnerEntity implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Store> stores = new ArrayList<>();
 
@@ -62,25 +64,7 @@ public class PartnerEntity implements UserDetails {
 
     public void addStore(Store store) {
         this.stores.add(store);
-        store.setOwnerId(this.userId);
-    }
-
-    public boolean editStore(Store updatedStore){
-        boolean matched = false;
-
-        for (Store store : this.stores) {
-            if (store.getId().equals(updatedStore.getId())) {
-                matched = true;
-                if(updatedStore.getName() != null) store.setName(updatedStore.getName());
-                if(updatedStore.getLocation() != null) store.setLocation(updatedStore.getLocation());
-                if(updatedStore.getLatitude() != null) store.setLatitude(updatedStore.getLatitude());
-                if(updatedStore.getLongitude() != null) store.setLongitude(updatedStore.getLongitude());
-                if(updatedStore.getDescription() != null) store.setDescription(updatedStore.getDescription());
-                break;
-            }
-        }
-
-        return matched;
+        store.setPartner(this);
     }
 
     @Override

@@ -83,7 +83,6 @@ public class PartnerService implements UserDetailsService {
         String currentUserId = authentication.getName();
         PartnerEntity currentPartner = partnerRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new RuntimeException("Partner not found"));
-        currentPartner.addStore(store);
 
         boolean exist = this.storeRepository.existsByName(store.getName());
         if(exist){
@@ -91,31 +90,43 @@ public class PartnerService implements UserDetailsService {
         }
 
         var result = this.storeRepository.save(store);
+        currentPartner.addStore(store);
         return result;
     }
 
-    public Store editStore(Store store, Authentication authentication){
-        String currentUserId = authentication.getName();
-        PartnerEntity currentPartner = partnerRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new RuntimeException("Partner not found"));
+    public Store editStore(Store updatedStore){
+        Store existingStore = storeRepository.findByName(updatedStore.getName())
+                .orElseThrow(() -> new RuntimeException("Store not found"));
 
-        boolean match = currentPartner.editStore(store);
-
-        if(!match){
-            throw new RuntimeException("No Such Store");
+        if(updatedStore.getName() != null) {
+            existingStore.setName(updatedStore.getName());
+        }
+        if(updatedStore.getLocation() != null) {
+            existingStore.setLocation(updatedStore.getLocation());
+        }
+        if(updatedStore.getLatitude() != null) {
+            existingStore.setLatitude(updatedStore.getLatitude());
+        }
+        if(updatedStore.getLocation() != null) {
+            existingStore.setLongitude(updatedStore.getLongitude());
+        }
+        if(updatedStore.getDescription() != null) {
+            existingStore.setDescription(updatedStore.getDescription());
         }
 
-        var result = this.storeRepository.save(store);
+        var result = this.storeRepository.save(existingStore);
         return result;
     }
 
+    @Transactional
     public boolean deleteStore(String storeName){
-        PartnerEntity currentPartner = getCurrentPartner();
+        PartnerEntity currentPartner = partnerRepository.findByIdAndInitializeStores(getCurrentPartner().getId());
         for(Iterator<Store> iterator = currentPartner.getStores().iterator(); iterator.hasNext();){
             Store store = iterator.next();
             if(store.getName().equals(storeName)){
                 iterator.remove();
                 storeRepository.delete(store);
+                storeRepository.flush();
                 return true;
             }
         }
