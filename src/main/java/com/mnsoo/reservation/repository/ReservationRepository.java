@@ -13,10 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    Optional<Reservation> findByStoreAndReservationDateAndReservationTime(
+    Optional<Reservation> findByStoreAndReservationDate(
             Store store,
-            LocalDate reservationDate,
-            LocalTime reservationTime
+            LocalDate reservationDate
     );
 
     List<Reservation> findByStoreNameAndReservationDateOrderByReservationTimeAsc(

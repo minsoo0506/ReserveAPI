@@ -107,10 +107,9 @@ public class ReserverService implements UserDetailsService {
                 .orElseThrow(StoreNotFoundException::new);
 
         LocalDate reservationDate = request.getDate();
-        LocalTime reservationTime = request.getTime();
 
         Optional<Reservation> existingReservation = this.reservationRepository
-                .findByStoreAndReservationDateAndReservationTime(store, reservationDate, reservationTime);
+                .findByStoreAndReservationDate(store, reservationDate);
         if (existingReservation.isPresent()) {
             throw new RuntimeException("There is already a reservation at this time.");
         }
@@ -148,7 +147,6 @@ public class ReserverService implements UserDetailsService {
                 || currentTime.plusMinutes(10).isBefore(time)) {//need to check
             throw new RuntimeException("Invalid Confirmation");
         }
-        // 예약은 1인당 하루 1개씩만...
         return "confirmed!";
     }
 
