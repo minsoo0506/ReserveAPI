@@ -31,7 +31,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(StringUtils.hasText(token) && this.tokenProvider.validateToken(token)) {
             // 토큰 유효성 검증
-            Authentication auth = this.tokenProvider.getAuthentication(token);
+            String role = this.tokenProvider.getRolesFromToken(token);
+            System.out.println(role);
+            Authentication auth = null;
+
+            if ("ROLE_PARTNER".equals(role)) {
+                auth = this.tokenProvider.getPartnerAuthentication(token);
+            } else if ("ROLE_RESERVER".equals(role)) {
+                auth = this.tokenProvider.getReserverAuthentication(token);
+            }
+
+            if (auth == null) {
+                throw new IllegalArgumentException("Invalid role in token");
+            }
+
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

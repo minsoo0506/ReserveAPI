@@ -21,7 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Service
@@ -104,9 +106,11 @@ public class ReserverService implements UserDetailsService {
         Store store = this.storeRepository.findByName(request.getStoreName())
                 .orElseThrow(StoreNotFoundException::new);
 
-        LocalDateTime reservationTime = LocalDateTime.of(request.getDate(), request.getTime());
+        LocalDate reservationDate = request.getDate();
+        LocalTime reservationTime = request.getTime();
 
-        Optional<Reservation> existingReservation = this.reservationRepository.findByStoreAndReservationTime(store, reservationTime);
+        Optional<Reservation> existingReservation = this.reservationRepository
+                .findByStoreAndReservationDateAndReservationTime(store, reservationDate, reservationTime);
         if (existingReservation.isPresent()) {
             throw new RuntimeException("There is already a reservation at this time.");
         }
@@ -121,6 +125,31 @@ public class ReserverService implements UserDetailsService {
         Reservation savedReservation = this.reservationRepository.save(reservation);
 
         return savedReservation;
+    }
+
+    public String arrivalConfirm(String storeName, LocalDate date, LocalTime time, String phoneNumber){
+        Optional<Reservation> optionalReservation = this.reservationRepository
+                .findByStore_NameAndReservationDateAndReservationTimeAndReserverPhoneNumber(
+                        storeName,
+                        date,
+                        time,
+                        phoneNumber
+                );
+
+        if (optionalReservation.isEmpty()) {
+            throw new RuntimeException("No such reservation");
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalTime currentTime = LocalTime.now();
+
+        if (!today.equals(date)
+                || currentTime.isAfter(time)
+                || currentTime.plusMinutes(10).isBefore(time)) {//need to check
+            throw new RuntimeException("Invalid Confirmation");
+        }
+        // 예약은 1인당 하루 1개씩만...
+        return "confirmed!";
     }
 
     private ReserverEntity getCurrentReserver() {

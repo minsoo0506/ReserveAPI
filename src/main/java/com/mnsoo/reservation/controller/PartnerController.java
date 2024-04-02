@@ -5,6 +5,7 @@ import com.mnsoo.reservation.domain.persist.Store;
 import com.mnsoo.reservation.security.TokenProvider;
 import com.mnsoo.reservation.service.PartnerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -78,9 +79,9 @@ public class PartnerController {
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> checkReservation(
             @RequestParam String storeName,
-            @RequestParam LocalDate localDate
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ){
-        var result = this.partnerService.getReservations(storeName, localDate);
+        var result = this.partnerService.getReservations(storeName, date);
         return ResponseEntity.ok(result);
     }
 }

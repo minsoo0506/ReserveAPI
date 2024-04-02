@@ -1,6 +1,7 @@
 package com.mnsoo.reservation.security;
 
 import com.mnsoo.reservation.service.PartnerService;
+import com.mnsoo.reservation.service.ReserverService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -23,6 +25,7 @@ public class TokenProvider {
     private static final String KEY_ROLES = "roles";
 
     private final PartnerService partnerService;
+    private final ReserverService reserverService;
 
     @Value("{spring.jwt.secret}")
     private String secretKey;
@@ -48,8 +51,25 @@ public class TokenProvider {
                 .compact();
     }
 
-    public Authentication getAuthentication(String jwt){
-        UserDetails userDetails = this.partnerService.loadUserByUsername(this.getUsername(jwt));
+    public Authentication getPartnerAuthentication(String jwt){
+        String username = this.getUsername(jwt);
+        UserDetails userDetails = this.partnerService.loadUserByUsername(username);
+
+        if (userDetails == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
+    public Authentication getReserverAuthentication(String jwt){
+        String username = this.getUsername(jwt);
+        UserDetails userDetails = this.reserverService.loadUserByUsername(username);
+
+        if (userDetails == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
@@ -72,5 +92,12 @@ public class TokenProvider {
             // TODO
             return e.getClaims();
         }
+    }
+
+    public String getRolesFromToken(String token){
+        Claims claims = this.parseClaims(token);
+        List<String> roles = (List<String>) claims.get(KEY_ROLES);
+
+        return roles.isEmpty() ? null : roles.get(0);
     }
 }

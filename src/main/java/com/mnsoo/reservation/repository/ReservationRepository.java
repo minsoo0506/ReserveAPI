@@ -7,12 +7,27 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    Optional<Reservation> findByStoreAndReservationTime(Store store, LocalDateTime reservationTime);
+    Optional<Reservation> findByStoreAndReservationDateAndReservationTime(
+            Store store,
+            LocalDate reservationDate,
+            LocalTime reservationTime
+    );
 
-    List<Reservation> findByStoreNameAndReservationDateOrderByReservationTimeAsc(String storeName, LocalDate reservationDate);
+    List<Reservation> findByStoreNameAndReservationDateOrderByReservationTimeAsc(
+            String storeName,
+            LocalDate reservationDate
+    );
+
+    Optional<Reservation> findByStore_NameAndReservationDateAndReservationTimeAndReserverPhoneNumber(
+            String storeName,
+            LocalDate reservationDate,
+            LocalTime reservationTime,
+            String reserverPhoneNumber
+    );
 }

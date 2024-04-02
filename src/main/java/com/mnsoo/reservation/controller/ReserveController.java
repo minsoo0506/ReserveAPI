@@ -5,9 +5,13 @@ import com.mnsoo.reservation.domain.ReservationRequest;
 import com.mnsoo.reservation.security.TokenProvider;
 import com.mnsoo.reservation.service.ReserverService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/reserve")
@@ -69,6 +73,17 @@ public class ReserveController {
     @PreAuthorize("hasRole('RESERVER')")
     public ResponseEntity<?> makeReservation(@RequestBody ReservationRequest request) {
         var result = this.reserverService.makeReservation(request);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/arrive")
+    public ResponseEntity<?> arrivalConfirm(
+            @RequestParam String storeName,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time,
+            @RequestParam String phoneNumber
+    ){
+        var result = this.reserverService.arrivalConfirm(storeName, date, time, phoneNumber);
         return ResponseEntity.ok(result);
     }
 }

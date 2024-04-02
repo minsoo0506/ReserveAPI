@@ -27,7 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .authorizeRequests()
-                        .antMatchers("/**/signup", "/**/signin", "/**/search/**").permitAll()  // 엔드포인트에 대한 인증 요구 제외
+                        .antMatchers("/**/signup", "/**/signin", "/**/search/**", "/**/arrive/**").permitAll()  // 엔드포인트에 대한 인증 요구 제외
                 .anyRequest().authenticated()  // 그 외 모든 요청에 대해 인증 요구
                 .and()
                 .addFilterBefore(this.authenticationFilter, UsernamePasswordAuthenticationFilter.class);
