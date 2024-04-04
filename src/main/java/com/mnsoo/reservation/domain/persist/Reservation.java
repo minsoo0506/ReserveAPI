@@ -28,6 +28,9 @@ public class Reservation {
     @Column(nullable = false)
     private LocalTime reservationTime;
 
+    @Column(nullable = false)
+    private Boolean status;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "store_id", referencedColumnName = "id")

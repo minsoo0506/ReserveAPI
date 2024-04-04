@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/partners")
@@ -82,6 +83,17 @@ public class PartnerController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ){
         var result = this.partnerService.getReservations(storeName, date);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/reserve/refuse")
+    @PreAuthorize("hasRole('PARTNER')")
+    public ResponseEntity<?> refuseReservation(
+            @RequestParam String storeName,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time
+    ){
+        var result = this.partnerService.refuseReservation(storeName, date, time);
         return ResponseEntity.ok(result);
     }
 }

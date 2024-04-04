@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -119,6 +118,7 @@ public class ReserverService implements UserDetailsService {
                 .reservationDate(request.getDate())
                 .reservationTime(request.getTime())
                 .store(store)
+                .status(true)
                 .build();
 
         Reservation savedReservation = this.reservationRepository.save(reservation);
@@ -144,7 +144,9 @@ public class ReserverService implements UserDetailsService {
 
         if (!today.equals(date)
                 || currentTime.isAfter(time)
-                || currentTime.plusMinutes(10).isBefore(time)) {//need to check
+                || currentTime.plusMinutes(10).isAfter(time)
+                || optionalReservation.get().getStatus() == false
+        ) {
             throw new RuntimeException("Invalid Confirmation");
         }
         return "confirmed!";

@@ -20,8 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -135,6 +137,23 @@ public class PartnerService implements UserDetailsService {
 
     public List<Reservation> getReservations(String storeName, LocalDate date){
         return reservationRepository.findByStoreNameAndReservationDateOrderByReservationTimeAsc(storeName, date);
+    }
+
+    public Reservation refuseReservation(String storeName, LocalDate date, LocalTime time){
+        Optional<Reservation> reservation = reservationRepository.findByStore_NameAndReservationDateAndReservationTime(
+                storeName,
+                date,
+                time
+        );
+
+        if(reservation.isEmpty()){
+            throw new RuntimeException("No Such Reservation");
+        }
+
+        reservation.get().setStatus(false);
+        reservationRepository.save(reservation.get());
+
+        return reservation.get();
     }
 
     private PartnerEntity getCurrentPartner() {
