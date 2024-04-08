@@ -23,11 +23,6 @@ public class Review {
     @Column(nullable = false)
     private String reviewerId;
 
-    /*
-    @Column(nullable = false)
-    private String storeName;
-     */
-
     @Column(nullable = false)
     private LocalDate visitedDate;
 
