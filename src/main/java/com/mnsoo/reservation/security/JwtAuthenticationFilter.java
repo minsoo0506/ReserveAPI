@@ -14,6 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+// JwtAuthenticationFilter는 HTTP 요청이 들어올 때마다 JWT 토큰의 유효성을 검증하는 필터.
+// 이 필터는 OncePerRequestFilter를 상속받아, HTTP 요청이 올 때마다 한 번씩 실행됨.
+// 토큰의 유효성을 검증한 후, 해당 토큰에서 사용자의 역할을 추출하고, 이를 기반으로 인증 객체를 생성하여
+// SecurityContext에 설정. 이후 처리 과정에서 이 인증 정보를 사용할 수 있음.
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
+// 리뷰에 대한 정보를 담는 엔티티 클래스
 @Getter
 @Setter
 @AllArgsConstructor

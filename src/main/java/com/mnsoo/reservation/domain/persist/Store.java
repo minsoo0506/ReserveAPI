@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+// 상점에 대한 정보를 담는 엔티티 클래스
 @Getter
 @Setter
 @AllArgsConstructor

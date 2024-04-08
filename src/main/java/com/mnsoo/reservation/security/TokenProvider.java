@@ -18,6 +18,10 @@ import org.springframework.util.StringUtils;
 import java.util.Date;
 import java.util.List;
 
+// TokenProvider는 JWT 토큰을 생성하고 검증하는 역할을 수행.
+// 토큰은 사용자의 ID와 역할 정보를 포함하며, 이 정보는 HTTP 요청을 처리하는 동안 인증과 권한 확인에 사용됨.
+// 이 클래스는 토큰을 생성(generateToken), 토큰에서 인증 정보를 추출(getPartnerAuthentication, getReserverAuthentication),
+// 토큰에서 사용자 이름을 추출(getUsername), 토큰의 유효성을 검증(validateToken), 토큰에서 역할 정보를 추출(getRolesFromToken)하는 메소드를 제공함.
 @Component
 @RequiredArgsConstructor
 public class TokenProvider {

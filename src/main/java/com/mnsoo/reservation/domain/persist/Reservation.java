@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+// 예약에 대한 정보를 담는 엔티티 클래스
 @Getter
 @Setter
 @AllArgsConstructor

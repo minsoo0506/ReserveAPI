@@ -5,6 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+// 사용자가 작성한 예약 정보(데이터)를 RequestBody로 담아오기 위한 클래스
 @Data
 public class ReservationRequest {
 

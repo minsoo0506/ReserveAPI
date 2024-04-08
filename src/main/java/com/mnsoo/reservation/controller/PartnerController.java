@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+// 파트너(점주)에 관한 로직을 수행하는 컨트롤러
 @RestController
 @RequestMapping("/partners")
 @RequiredArgsConstructor
@@ -23,12 +24,14 @@ public class PartnerController {
     private final PartnerService partnerService;
     private final TokenProvider tokenProvider;
 
+    // 계정 생성(점주)
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody Auth.SignUp request){
         var result = this.partnerService.register(request);
         return ResponseEntity.ok(result);
     }
 
+    // 로그인
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@RequestBody Auth.SignIn request){
         var partner = this.partnerService.authenticate(request);
@@ -37,6 +40,7 @@ public class PartnerController {
         return ResponseEntity.ok(token);
     }
 
+    // 계정 정보 수정
     @PutMapping("/account/edit")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> edit(@RequestBody Auth.SignUp request){
@@ -44,6 +48,7 @@ public class PartnerController {
         return ResponseEntity.ok(result);
     }
 
+    // 계정 삭제(탈퇴)
     @DeleteMapping("/account/delete")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> deleteAccount() {
@@ -51,6 +56,7 @@ public class PartnerController {
         return ResponseEntity.ok(result);
     }
 
+    // 새로운 가게 등록
     @PostMapping("/store/register")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> registerStore(@RequestBody Store store, Authentication authentication){
@@ -58,6 +64,7 @@ public class PartnerController {
         return ResponseEntity.ok(result);
     }
 
+    // 등록된 가게의 정보를 수정
     @PutMapping("/store/edit")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> editStore(@RequestBody Store store){
@@ -65,6 +72,7 @@ public class PartnerController {
         return ResponseEntity.ok(result);
     }
 
+    // 등록된 가게를 삭제
     @DeleteMapping("/store/delete/{storeName}")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> deleteStore(@PathVariable String storeName){
@@ -76,6 +84,7 @@ public class PartnerController {
         }
     }
 
+    // 점주 예약 정보 확인(날짜별 시간 테이블 목록)
     @GetMapping("/reserve/check")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> checkReservation(
@@ -86,12 +95,13 @@ public class PartnerController {
         return ResponseEntity.ok(result);
     }
 
+    // 예약 정보 확인 후 거절(디폴트는 승인 상태)
     @PostMapping("/reserve/refuse")
     @PreAuthorize("hasRole('PARTNER')")
     public ResponseEntity<?> refuseReservation(
-            @RequestParam String storeName,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time
+            @RequestParam String storeName,// 상점 이름
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,// 예약 날짜
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time// 예약 시간
     ){
         var result = this.partnerService.refuseReservation(storeName, date, time);
         return ResponseEntity.ok(result);

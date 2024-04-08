@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// 예약자에 대한 정보를 담는 엔티티 클래스
 @Getter
 @Setter
 @Builder
